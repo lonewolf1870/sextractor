@@ -54,6 +54,10 @@
 #include ATLAS_LAPACK_H
 #endif
 
+#ifdef HAVE_ACCELERATE
+#include ACCELERATE_H
+#endif
+
 #ifdef HAVE_LAPACKE
 #include LAPACKE_H
 #endif
@@ -219,6 +223,10 @@ void	pattern_fit(patternstruct *pattern, profitstruct *profit)
 /* Solve the system */
 #if defined(HAVE_LAPACKE)
   LAPACKE_dposv(LAPACK_COL_MAJOR, 'L', nvec, 1, alpha, nvec, beta, nvec);
+#elif defined(HAVE_ACCELERATE)
+  int info,n_beta=1;
+  char* upper_or_lower="U";
+  dposv_(upper_or_lower, &nvec, &n_beta, alpha, &nvec, beta, &nvec, &info);
 #else
   clapack_dposv(CblasRowMajor, CblasUpper, nvec, 1, alpha, nvec, beta, nvec);
 #endif
@@ -819,6 +827,3 @@ static double	psf_laguerre(double x, int p, int q)
 
   return l;
   }
-
-
-
